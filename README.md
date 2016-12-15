@@ -9,8 +9,10 @@ The BaseExample extend the JPA Specification interface.
                 ContactExample
                         .where()//default is and
                         .id.eq(1l)
+                        .or()
                         .birthday.lt(new Date())
                         .name.like("%", "name");
+        //this example is "where id =1 or( birthday < #birthday# and name like '%#name#')"
         syntax(example);
     }
     // search by interface JpaSpecificationExecutor 
@@ -32,7 +34,7 @@ The BaseExample extend the JPA Specification interface.
 Usage:
 --------
 ### Create Entity Bean and JpaRepository(extends JpaSpecificationExecutor):
-    ```java
+```java
     @Entity
     public class Contact {
         @Id
@@ -51,6 +53,7 @@ Usage:
 ```
 
 ### Create your own Example:
+
 ```java
     public class ContactExample extends BaseExample<ContactExample, Contact> {
         public final Attr<Long> id = new Attr<Long>("id");
