@@ -1,6 +1,7 @@
 package cn.xiaod0510.jpa.findbyexample;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * 属性描述
@@ -86,12 +87,32 @@ public class AttrDescribe<C, T extends BaseExample> {
         return (T) condiction;
     }
 
+    public T notLike(C... value) {
+        condiction.add(name, BaseExample.PredicateType.notLike, value);
+        return (T) condiction;
+    }
+
+    public T notLike(Collection<C> value) {
+        condiction.add(name, BaseExample.PredicateType.notLike, value);
+        return (T) condiction;
+    }
+
     public T isNotNull(C value) {
         condiction.add(name, BaseExample.PredicateType.isNotNull, value);
         return (T) condiction;
     }
 
     public T notIn(C value) {
+        condiction.add(name, BaseExample.PredicateType.notIn, value);
+        return (T) condiction;
+    }
+
+    public T notIn(C... value) {
+        condiction.add(name, BaseExample.PredicateType.notIn, value);
+        return (T) condiction;
+    }
+
+    public T notIn(Collection<C> value) {
         condiction.add(name, BaseExample.PredicateType.notIn, value);
         return (T) condiction;
     }
@@ -103,6 +124,11 @@ public class AttrDescribe<C, T extends BaseExample> {
 
     public T lteq(C value) {
         condiction.add(name, BaseExample.PredicateType.ltEq, value);
+        return (T) condiction;
+    }
+
+    public T name() {
+        condiction.add(name, null, null);
         return (T) condiction;
     }
 }
