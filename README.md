@@ -2,8 +2,8 @@ FindByExample - Using Spring Data JPA
 =========================
 A good example for how to do a findByExample in JPA.
 The BaseExample extend the JPA Specification interface.
-e.g:
-    ```java
+### e.g:
+```java
     public static void main(String[] args) {
         ContactExample example =
                 ContactExample
@@ -27,11 +27,11 @@ e.g:
         Page<Contact> pageAndSort = repository.findAll(example, new PageRequest(0, 10, new Sort("id")));
 
     }
-    ```
+```
 
 Usage:
 --------
-h2.Create Entity Bean and JpaRepository(extends JpaSpecificationExecutor):
+### Create Entity Bean and JpaRepository(extends JpaSpecificationExecutor):
     ```java
     @Entity
     public class Contact {
@@ -48,9 +48,10 @@ h2.Create Entity Bean and JpaRepository(extends JpaSpecificationExecutor):
             extends
             JpaSpecificationExecutor<Contact> {
     }
-    ```
-h2.Create your own Example:
-    ```java
+```
+
+### Create your own Example:
+```java
     public class ContactExample extends BaseExample<ContactExample, Contact> {
         public final Attr<Long> id = new Attr<Long>("id");
         public final Attr<String> name = new Attr<String>("name");
@@ -62,7 +63,7 @@ h2.Create your own Example:
             return example;
         }
     }
-    ```
+```
 TODO list:
 --------
 - group by
