@@ -1,6 +1,7 @@
 package cn.xiaod0510.jpa.findbyexample;
 
 import cn.xiaod0510.jpa.findbyexample.fill.FillCondition;
+import cn.xiaod0510.jpa.findbyexample.fill.FillNotNull;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
@@ -32,6 +33,10 @@ public abstract class BaseExample<T extends BaseExample, M>
     public T add(String f, PredicateType t, Object v) {
         this.operators.add(new PredicateDescripe(f, t, v));
         return (T) this;
+    }
+
+    public T fill(Object pojo) {
+        return fill(pojo, FillNotNull.class);
     }
 
     public T fill(Object pojo, Class<? extends FillCondition> fill) {
@@ -99,7 +104,8 @@ public abstract class BaseExample<T extends BaseExample, M>
         //start with first
         for (int i = 0; i < condictions.size(); i++) {
             pointer = condictions.get(i);
-            Predicate[] predicates = conditionToPredicate(root, cb, pointer);
+            Predicate[] predicates = pointer.conditionToPredicate(root, cb);
+            if (predicates == null || predicates.length == 0) continue;
             switch (pointer.operatorType) {
                 case and:
                     withWhere.add(cb.and(predicates));
@@ -112,7 +118,7 @@ public abstract class BaseExample<T extends BaseExample, M>
         return query.where(withWhere.toArray(new Predicate[]{})).getRestriction();
     }
 
-    private Predicate[] conditionToPredicate(Root<M> root, CriteriaBuilder cb, BaseExample condiction) {
+    private Predicate[] conditionToPredicate(Root<M> root, CriteriaBuilder cb) {
 
         List<Predicate> result = new ArrayList<Predicate>();
         for (int i = 0; i != this.operators.size(); i++) {

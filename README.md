@@ -104,7 +104,26 @@ Usage:
             ;
     }
 ```
+Example to JPQL:
+--------
+
+* jpql : from Contact where id <200 and id > 100
+```java
+    ContactExample.where()
+        .id.lt(200l)
+        .id.gt(100l)
+```
+* jpql : from Contact where id <200 and id > 100 and( id = 150 or id = 160 )
+```java
+    ContactExample.where()
+            .id.lt(200l)
+            .id.gt(100l)
+        .or()
+            .id.eq(150l)
+            .id.eq(160l)
+```
+
 TODO list:
 --------
 - group by
-- subquery
+- SubQuery

@@ -47,6 +47,10 @@ public class AttrDescribe<C, T extends BaseExample> {
         condiction.add(name, BaseExample.PredicateType.in, Arrays.asList(value));
         return (T) condiction;
     }
+    public T in(Collection<C> value) {
+        condiction.add(name, BaseExample.PredicateType.in, Arrays.asList(value));
+        return (T) condiction;
+    }
 
     public T like(C... value) {
         StringBuffer stringBuffer = new StringBuffer();
@@ -99,11 +103,6 @@ public class AttrDescribe<C, T extends BaseExample> {
 
     public T isNotNull(C value) {
         condiction.add(name, BaseExample.PredicateType.isNotNull, value);
-        return (T) condiction;
-    }
-
-    public T notIn(C value) {
-        condiction.add(name, BaseExample.PredicateType.notIn, value);
         return (T) condiction;
     }
 
