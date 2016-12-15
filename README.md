@@ -70,11 +70,13 @@ Usage:
 
 ### API:
 
+#### invoke by method chaining
 ```java
     
     public static void main(String[] args) {
         ContactExample
-            .where()//default is and
+
+        .where()//default is and
 
             .id.eq(1l)
             .id.notEq(1l)
@@ -97,13 +99,60 @@ Usage:
             .id.isNull()
             .id.isNotNull()
 
-            .and()
+        .and()
+            .name.like("%name%")
+            .name.like("%",name)
+            .name.like(name,"%")
                 //...
-            .or()
+        .or()
                 //...
             ;
     }
 ```
+#### invoke by pojo
+##### create pojo query
+```java
+    public class ContactQuery{
+        private Long id;
+        private Long idGt;
+        private Long idIn;
+        private Long idBetween;
+        //Getter and Setter
+    }
+
+```
+##### fill example by pojo
+```java
+    ContactQuery query = new ContactQuery();
+    query.setId(1l);
+    query.setIdGt(100l);
+    query.setIdIn(new Long[]{1l,2l,3l});
+    query.setIdBetween(new Long[]{1l,3l});
+
+    ContactExample
+        .where()
+        .fill(query)
+```
+##### fill by your own method
+```java
+    ContactQuery query = new ContactQuery();
+    query.setId(1l);
+    query.setIdGt(100l);
+    query.setIdIn(new Long[]{1l,2l,3l});
+    query.setIdBetween(new Long[]{1l,3l});
+
+    ContactExample
+        .where()
+        .fill(query, 
+            new FillCondition() {
+                @Override
+                public void fill(BaseExample baseExample, Object query) {
+                    //your code here
+                }
+            });
+```
+
+
 Example to JPQL:
 --------
 
