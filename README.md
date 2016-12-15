@@ -67,6 +67,43 @@ Usage:
         }
     }
 ```
+
+### API:
+
+```java
+    
+    public static void main(String[] args) {
+        ContactExample
+            .where()//default is and
+
+            .id.eq(1l)
+            .id.notEq(1l)
+
+            .id.gt(1l)
+            .id.gtEq(1l)
+
+            .id.lt(1l)
+            .id.ltEq(1l)
+
+            .id.in(1l)
+            .id.in(1l,2l)
+            .id.in(new Long[]{})
+            .id.in(new ArrayList())
+
+            .id.notIn(1l)
+
+            .id.between(1l,2l)
+
+            .id.isNull()
+            .id.isNotNull()
+
+            .and()
+                //...
+            .or()
+                //...
+            ;
+    }
+```
 TODO list:
 --------
 - group by
