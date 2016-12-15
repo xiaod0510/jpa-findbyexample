@@ -1,6 +1,7 @@
 package cn.xiaod0510.jpa.findbyexample;
 
 import cn.xiaod0510.jpa.findbyexample.fill.FillCondition;
+import cn.xiaod0510.jpa.findbyexample.fill.FillNotNull;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.*;
@@ -8,8 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static cn.xiaod0510.jpa.findbyexample.BaseExample.OperatorType.and;
-import static cn.xiaod0510.jpa.findbyexample.BaseExample.OperatorType.or;
+import static cn.xiaod0510.jpa.findbyexample.BaseExample.OperatorType.*;
 
 /**
  * Created by xiaod0510@gmail.com on 16-11-22 下午12:47.
@@ -18,6 +18,7 @@ public abstract class BaseExample<T extends BaseExample, M>
         implements Specification<M> {
     public enum OperatorType {
         and, or
+        ,select, groupBy, having
     }
 
     public enum PredicateType {
@@ -34,6 +35,16 @@ public abstract class BaseExample<T extends BaseExample, M>
         return (T) this;
     }
 
+    /**
+     * default by FillNotNull
+     *
+     * @param pojo
+     * @return
+     */
+    public T fill(Object pojo) {
+        return fill(pojo, new FillNotNull());
+    }
+
     public T fill(Object pojo, Class<? extends FillCondition> fill) {
         try {
             return fill(pojo, fill.newInstance());
@@ -46,6 +57,7 @@ public abstract class BaseExample<T extends BaseExample, M>
         fill.fill(this, pojo);
         return (T) this;
     }
+
 
     /****/
     protected T newInstance(OperatorType type) {
@@ -77,6 +89,21 @@ public abstract class BaseExample<T extends BaseExample, M>
         return newInstance(or);
     }
 
+    public T groupBy() {
+        return newInstance(groupBy);
+    }
+
+    private Class newSelect = null;
+
+    public T select(Class clszz) {
+        newSelect = clszz;
+        return newInstance(select);
+    }
+
+    public T having() {
+        return newInstance(having);
+    }
+
     /**
      * return prev expr
      *
@@ -96,29 +123,64 @@ public abstract class BaseExample<T extends BaseExample, M>
             pointer = pointer.prev;
         }
         List<Predicate> withWhere = new ArrayList<Predicate>();
+        List<Expression<?>> groupBy = null;
+        Predicate[] having = null;
         //start with first
         for (int i = 0; i < condictions.size(); i++) {
             pointer = condictions.get(i);
-            Predicate[] predicates = conditionToPredicate(root, cb, pointer);
+            Predicate[] predicates = null;
             switch (pointer.operatorType) {
+                case select:
+                    query.select(cb.parameter(newSelect));
+                    break;
                 case and:
+                    predicates = pointer.conditionToPredicate(root, cb);
                     withWhere.add(cb.and(predicates));
                     break;
                 case or:
+                    predicates = pointer.conditionToPredicate(root, cb);
                     withWhere.add(cb.or(predicates));
+                    break;
+                case groupBy:
+                    groupBy = pointer.conditionToExpression(root, cb);
+                    break;
+                case having:
+                    having = pointer.conditionToPredicate(root, cb);
                     break;
             }
         }
-        return query.where(withWhere.toArray(new Predicate[]{})).getRestriction();
+        if (withWhere.size() > 0) {
+            query.where(withWhere.toArray(new Predicate[]{}));
+        }
+        if (groupBy != null) {
+            query.groupBy(groupBy);
+        }
+        if (having != null) {
+            query.having(having);
+        }
+        return query.getRestriction();
     }
 
-    private Predicate[] conditionToPredicate(Root<M> root, CriteriaBuilder cb, BaseExample condiction) {
+    private List<Expression<?>> conditionToExpression(Root<M> root, CriteriaBuilder cb) {
+        List<Expression<?>> exprs = new ArrayList<Expression<?>>();
+        for (int i = 0; i != this.operators.size(); i++) {
+            PredicateDescripe predicateDescripe = this.operators.get(i);
+            Expression expr = root.get(predicateDescripe.getField());
+            if (expr == null) continue;
+            if (predicateDescripe.getType() == null) {
+                exprs.add(expr);
+            }
+        }
+        return exprs;
+    }
+
+    private Predicate[] conditionToPredicate(Root<M> root, CriteriaBuilder cb) {
 
         List<Predicate> result = new ArrayList<Predicate>();
         for (int i = 0; i != this.operators.size(); i++) {
             PredicateDescripe predicateDescripe = this.operators.get(i);
             Expression expr = root.get(predicateDescripe.getField());
-            if (expr == null) continue;
+            if (expr == null || predicateDescripe.getType() == null) continue;
             switch (predicateDescripe.getType()) {
                 case isNotNull:
                     result.add(cb.isNotNull(expr));
@@ -159,7 +221,6 @@ public abstract class BaseExample<T extends BaseExample, M>
                     break;
                 case notIn:
                     result.add(cb.in(expr).value(predicateDescripe.toList()).not());
-
             }
         }
         return result.toArray(new Predicate[]{});
@@ -170,7 +231,7 @@ public abstract class BaseExample<T extends BaseExample, M>
         BaseExample pointer = this;
         StringBuffer result = new StringBuffer();
         while (pointer != null) {
-            StringBuffer oneExprStr = new StringBuffer();
+            StringBuffer oneExprStr = new StringBuffer("(");
             for (int i = 0; i < pointer.operators.size(); i++) {
                 PredicateDescripe descripe = (PredicateDescripe) pointer.operators.get(i);
                 if (descripe.getField() == null) continue;
@@ -182,6 +243,7 @@ public abstract class BaseExample<T extends BaseExample, M>
                     oneExprStr.append(descripe.getValue()).append(" ");
                 }
             }
+            oneExprStr.append(")");
             result.insert(0, oneExprStr.toString());
             pointer = pointer.prev;
         }
