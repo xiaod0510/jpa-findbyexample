@@ -3,6 +3,7 @@ package cn.xiaod0510.jpa.findbyexample.fill;
 import cn.xiaod0510.jpa.findbyexample.BaseExample;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -31,6 +32,10 @@ public class FillNotNull implements FillCondition {
         for (Field field : fields) {
             try {
                 field.setAccessible(true);
+                //skip static field
+                if(Modifier.isStatic(field.getModifiers())){
+                    continue;
+                }
                 Object value = field.get(pojo);
                 if (value == null) {
                     continue;
