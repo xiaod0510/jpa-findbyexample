@@ -1,7 +1,6 @@
 package cn.xiaod0510.jpa.findbyexample;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by xiaod0510@gmail.com on 16-11-30 上午10:14.
@@ -84,6 +83,17 @@ public class PredicateDescripe<T> {
             return (List) Arrays.asList(values);
         }
         return Arrays.asList(value);
+    }
+
+    public T[] toArray() {
+        if (value instanceof Collection) {
+            Collection<T> collection = (Collection<T>) value;
+            return (T[]) collection.toArray();
+        }
+        if (value instanceof Object[]) {
+            return (T[]) value;
+        }
+        return null;
     }
 
     @Override

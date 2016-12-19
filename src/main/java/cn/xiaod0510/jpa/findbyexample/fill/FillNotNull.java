@@ -52,7 +52,10 @@ public class FillNotNull implements FillCondition {
                 }
                 //type首字母大写,若为空则默认为equals
                 BaseExample.PredicateType predicateType = predicateTypeMap.get(typeName);
-                if (predicateType == null) predicateType = BaseExample.PredicateType.eq;
+                if (predicateType == null) {
+                    predicateType = BaseExample.PredicateType.eq;
+                    fieldName = field.getName();
+                }
 
                 condiction.add(fieldName, predicateType, value);
             } catch (Exception e) {

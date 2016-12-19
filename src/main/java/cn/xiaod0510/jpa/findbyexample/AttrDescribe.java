@@ -44,11 +44,12 @@ public class AttrDescribe<C, T extends BaseExample> {
     }
 
     public T in(C... value) {
-        condiction.add(name, BaseExample.PredicateType.in, Arrays.asList(value));
+        condiction.add(name, BaseExample.PredicateType.in, value);
         return (T) condiction;
     }
+
     public T in(Collection<C> value) {
-        condiction.add(name, BaseExample.PredicateType.in, Arrays.asList(value));
+        condiction.add(name, BaseExample.PredicateType.in, value.toArray());
         return (T) condiction;
     }
 
@@ -97,7 +98,7 @@ public class AttrDescribe<C, T extends BaseExample> {
     }
 
     public T notLike(Collection<C> value) {
-        condiction.add(name, BaseExample.PredicateType.notLike, value);
+        condiction.add(name, BaseExample.PredicateType.notLike, value.toArray());
         return (T) condiction;
     }
 
@@ -112,7 +113,7 @@ public class AttrDescribe<C, T extends BaseExample> {
     }
 
     public T notIn(Collection<C> value) {
-        condiction.add(name, BaseExample.PredicateType.notIn, value);
+        condiction.add(name, BaseExample.PredicateType.notIn, value.toArray());
         return (T) condiction;
     }
 
