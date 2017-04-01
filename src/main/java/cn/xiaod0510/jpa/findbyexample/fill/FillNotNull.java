@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * Created by xiaod0510@gmail.com on 16-11-30 下午12:37.
  */
 public class FillNotNull implements FillCondition {
-    private static final Pattern pattern = Pattern.compile("(.+)([A-Z][a-z]+)");
+    private static final Pattern pattern = Pattern.compile("([A-Z])");
     private static Map<String, BaseExample.PredicateType> predicateTypeMap = new HashMap<String, BaseExample.PredicateType>();
 
     static {
@@ -33,7 +33,7 @@ public class FillNotNull implements FillCondition {
             try {
                 field.setAccessible(true);
                 //skip static field
-                if(Modifier.isStatic(field.getModifiers())){
+                if (Modifier.isStatic(field.getModifiers())) {
                     continue;
                 }
                 Object value = field.get(pojo);
@@ -44,20 +44,23 @@ public class FillNotNull implements FillCondition {
                     continue;
                 }
                 String fieldName = field.getName();
-                String typeName = "Eq";
+                BaseExample.PredicateType predicateType = null;
                 Matcher matcher = pattern.matcher(fieldName);
-                if (matcher.find()) {
-                    fieldName = matcher.group(1);
-                    typeName = matcher.group(2);
+
+                String nameFound = null;
+                while (matcher.find()) {
+                    String typeName = fieldName.substring(matcher.start());
+                    nameFound = fieldName.substring(0, matcher.start());
+                    predicateType = predicateTypeMap.get(typeName);
+                    if (predicateType != null) break;
                 }
                 //type首字母大写,若为空则默认为equals
-                BaseExample.PredicateType predicateType = predicateTypeMap.get(typeName);
                 if (predicateType == null) {
                     predicateType = BaseExample.PredicateType.eq;
-                    fieldName = field.getName();
+                    nameFound = fieldName;
                 }
 
-                condiction.add(fieldName, predicateType, value);
+                condiction.add(nameFound, predicateType, value);
             } catch (Exception e) {
                 e.printStackTrace();
             }
