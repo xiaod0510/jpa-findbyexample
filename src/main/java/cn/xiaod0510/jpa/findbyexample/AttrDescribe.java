@@ -1,6 +1,5 @@
 package cn.xiaod0510.jpa.findbyexample;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -77,10 +76,6 @@ public class AttrDescribe<C, T extends BaseExample> {
         return (T) condiction;
     }
 
-    public T isNull(C value) {
-        condiction.add(name, BaseExample.PredicateType.isNull, value);
-        return (T) condiction;
-    }
 
     public T notEq(C value) {
         condiction.add(name, BaseExample.PredicateType.notEq, value);
@@ -102,8 +97,8 @@ public class AttrDescribe<C, T extends BaseExample> {
         return (T) condiction;
     }
 
-    public T isNotNull(C value) {
-        condiction.add(name, BaseExample.PredicateType.isNotNull, value);
+    public T isNotNull() {
+        condiction.add(name, BaseExample.PredicateType.isNotNull, null);
         return (T) condiction;
     }
 
